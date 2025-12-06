@@ -403,6 +403,316 @@ order by country ;
 
 
 -- views
+show databases;
+use mydatabase;
+
+
+
+use sampledatabase;
+ 
+-- select contactFirstName,city,state,country,creditLimit
+-- from customers
+-- where country='USA'
+-- order by creditLimit desc
+-- limit 10 offset 25;
+ 
+use meraDatabase;
+ 
+-- constraints -> rule
+ 
+-- UIDAI
+create table students(
+id int primary key auto_increment,
+name varchar(255) not null,
+gender char(1),
+email varchar(255) not null unique,
+country varchar(50) default 'INDIA',
+mobileNo bigint unique,
+age int check(age>=18)
+);
+ 
+desc students;
+drop table students;
+ 
+# primary key -> not null + unique -> 1 primary key per table
+ 
+insert into students(name,gender,email,mobileNo,age) values
+("Gaurav Tiwari",'M','gaurav@gmail.com',8448179215,26);
+select * from students;
+ 
+-- foreign key : Data integrity,Normalization
+ 
+create table course(
+studentId int,
+    courseId int primary key,
+    coursename varchar(255),
+    price decimal(9,2),
+    constraint ducat_enrollment foreign key(studentId) references students(id)
+);
+
+
+use `WE_MySQL@7`;
+CREATE TABLE students (
+    ducat_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(15) UNIQUE,
+    dob DATE NOT NULL,
+    gender char(1) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    duration_in_weeks INT NOT NULL,
+    fees DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ 
+create table Student_Course(
+ducat_id int,course_id int,
+purchase_id int primary key auto_increment, -- 1 student can enroll in same course again and again
+startedAt timestamp default current_timestamp,
+foreign key(ducat_id) references students(ducat_id),
+foreign key(course_id) references courses(course_id)
+);
+ 
+insert into students values(19582,'abhishek','yadav','abhisheky220920@gmail.com',8130036352,'2000-09-22','M',now(),now());
+insert into courses values(20001,'Java Fullstack','core java ,react,springboot,mysql',30,50000,now());
+insert into student_course(ducat_id,course_id,purchase_id) values(19582,20001,600000);
+ 
+select * from students;
+select * from student_course order by ducat_id;
+select * from courses;
+ 
+INSERT INTO courses (course_name, description, duration_in_weeks, fees)
+VALUES
+('Python Fullstack', 'Python, Flask, React, MySQL', 28, 45000),
+('Data Science', 'Python, ML, DL, Statistics', 32, 65000),
+('DevOps', 'AWS, Docker, Kubernetes, CI/CD', 20, 55000),
+('MERN Stack', 'MongoDB, Express, React, Node', 26, 48000),
+('Cyber Security', 'Ethical hacking, networking, Linux', 24, 50000);
+ 
+INSERT INTO students (ducat_id, first_name, last_name, email, phone, dob, gender)
+VALUES
+(20278,'gaurav','kumar','gaurav20278@example.com','9876543210','2000-01-01','M'),
+(17459,'kritika','sharma','kritika17459@example.com','9876543211','1999-04-11','F'),
+(21448,'sourav','singh','sourav21448@example.com','9876543212','1998-06-21','M'),
+(21220,'sujal','verma','sujal21220@example.com','9876543213','2001-09-18','M'),
+(19432,'abhishek','gupta','abhishek19432@example.com','9876543214','1999-02-14','M'),
+(20675,'amit','kumar','amit20675@example.com','9876543215','1997-03-23','M'),
+(20951,'varsha','jain','varsha20951@example.com','9876543216','1998-12-08','F'),
+(19675,'himanshu','rai','himanshu19675@example.com','9876543217','1997-07-15','M'),
+(20264,'parag','mehta','parag20264@example.com','9876543218','1998-09-09','M');
+ 
+ 
+ 
+INSERT INTO student_course (ducat_id, course_id)
+VALUES
+(20278, 20001),
+(17459, 20002),
+(21448, 20003),
+(21220, 20004),
+(19432, 20005),
+(20675, 20006),
+(20951, 20001),
+(19675, 20001),
+(20264, 20001);
+ 
+insert into student_course(ducat_id,course_id) values(17459,20005),(17459,20001);
+
+-- view
+create view student as 
+select ducat_id, first_name,last_name,email
+from students
+where gender = 'm';
+select * from student;
+/*
+In SQL, a View is a virtual table that shows data from one or more real tables, but doesn’t store data itself.
+
+It is created using a saved query and is stored in the database as a definition.
+
+Key points:
+
+It looks like a table, so you can run SELECT on it ✅
+
+It gets data from real tables every time you call it 🔄
+
+It saves complex queries to reuse easily 🧠
+
+No extra storage for data (only the query is saved) 💾❌
+When views are useful:
+
+To simplify long queries
+
+To secure data (show only selected columns)
+
+To avoid writing same query again and again
+
+To combine data from multiple tables
+*/
+
+
+-- Stroed Procedures
+-- pre-complied query 
+
+/*
+Stored Procedures in SQL
+
+A stored procedure is a saved block of SQL code that you can reuse to perform specific tasks in the database.
+
+✅ Main benefits
+
+Reuse queries easily 🔁
+
+Faster execution (compiled by database engine)
+
+Supports parameters (input/output)
+
+Can include logic like IF, loops, etc.
+
+Helps automate database operations
+
+💾 Where it's stored
+
+Inside the database system like MySQL or Microsoft SQL Server.*/
+DELIMITER $$
+
+CREATE PROCEDURE getmobilebyid(IN id INT, OUT mobno BIGINT)
+BEGIN
+    SELECT phone INTO mobno FROM students WHERE ducat_id = id;
+END $$
+
+DELIMITER ;
+SET @mobno = 0;
+CALL getmobilebyid(19432, @mobno);
+SELECT @mobno;
+
+
+drop procedure getmobilebyid;
+
+
+
+-- create a function procesured
+
+
+delimiter $$
+create procedure increasefee(in cid int, inout per float)
+begin
+set @oldfee=0;
+select fees into @oldFee from courses where course_id=cid;
+set @newFee=@oldfee+@oldFee*per;
+select @newFee into per;
+update courses set fees=@newfee where course_id=cid;
+
+
+end $$
+delimiter ;
+
+set @c_data=0.15;
+call increasefee(20001,@c_data);
+select concat("new fess is" , @c_data);
+
+drop procedure increasefee;
+use  `we_mysql@7`;
+show databases;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE increasefees(IN cid INT, INOUT per FLOAT)
+BEGIN
+    DECLARE oldFee FLOAT;
+    DECLARE newFee FLOAT;
+
+    SELECT fees INTO oldFee FROM courses WHERE course_id = cid;
+
+    IF oldFee < 50000 THEN
+        SET newFee = oldFee + (oldFee * per);
+        UPDATE courses SET fees = newFee WHERE course_id = cid;
+        SET per = newFee;  -- return new fee
+    ELSE
+        SET per = oldFee;  -- return unchanged fee
+    END IF;
+
+END $$
+
+DELIMITER ;
+
+/*
+In this function we are learn about string realted function to be solve  
+*/
+show databases;
+use pratice;
+
+show tables;
+desc student;
+select * from student;
+select length(name) from student where id=1001;
+select lower(name) from student where id = 1001;
+select upper(name) from student where id = 1001;
+select concat(name, age) from student where id = 1001;
+select substring(name, 4, 7) from student where id = 1001;
+select replace("-", " ", name ) from student where id = 1001;
+SELECT LEFT(name, 5) 
+FROM student 
+WHERE id = 1001;
+
+SELECT right(name, 5) 
+FROM student 
+WHERE id = 1001;
+
+
+SELECT right(name, 5) 
+FROM student 
+WHERE id = 1001;
+
+
+SELECT right(name, 5) 
+FROM student 
+WHERE id = 1001;
+
+SELECT lpad(name, 3, "*") 
+FROM student 
+WHERE id = 1001;
+
+SELECT rpad(name, 3, "*") 
+FROM student 
+WHERE id = 1001;
+
+
+
+SELECT instr(name, 'a') 
+FROM student 
+WHERE id = 1001;
+select name from student where id =1001;
+
+select format(name) from student where id = 1001;
+
+
+-- now Pratice on Numaric Function
+
+use mysampledatabase;
+use sampledatabase;
+select * from customers;
+select abs(creditlimit) from customers where customernumber=103;
+select round(creditlimit) from customers where customernumber=119;
+select ceil(creditlimit) from customers where customernumber=119;
+select floor(creditlimit) from customers where customernumber=119;
+select mod(creditlimit, 1000) from customers where customernumber=119;
+select power(2,5);
+select rand(creditlimit)from customers;
+select greatest(20,50,150) from customers;
+
+
+
+
+
+
+
 
 
 
