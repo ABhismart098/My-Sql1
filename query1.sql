@@ -708,6 +708,174 @@ select rand(creditlimit)from customers;
 select greatest(20,50,150) from customers;
 
 
+-- Date and Time Function
+
+select now();
+select curdate();
+select current_time();
+SELECT DATEDIFF('2025-12-06', '2000-09-22');
+SELECT DATE_ADD('2025-12-06', INTERVAL 10 DAY);
+SELECT DATE_sub('2025-12-06', INTERVAL 10 DAY);
+SELECT month('2025-12-06');
+SELECT day('2025-12-06');
+SELECT dayname('2025-12-06');
+SELECT monthname('2025-12-06');
+SELECT week('2025-12-06');
+select timestamp;
+
+-- Agregate functions 
+use sampledatabase;
+select count(customername), country from customers  group by country  order by country;
+
+select sum(creditlimit),count(customername), country from customers group by country order by country;
+select avg(creditlimit), count(customername),country from customers group by country order by country;
+
+select min(creditlimit), count(customername),country from customers group by country order by country;
+select max(creditlimit), count(customername),country from customers group by country order by country;
+
+
+-- Implements a condition in a mysql database
+
+select if (creditlimit>50000, 'Hightcredit','lowcredit'),customernumber, customername,creditlimit from customers order by creditlimit;
+select  nullif(creditlimit, 0), customername,customernumber from customers order by customernumber;
+select  ifnull(creditlimit, 0), customername,customernumber from customers order by customernumber;
+
+SELECT customername,
+       creditlimit,
+       CASE 
+           WHEN creditlimit > 80000 THEN 'Very High'
+           WHEN creditlimit > 50000 THEN 'High'
+           WHEN creditlimit > 20000 THEN 'Medium'
+           ELSE 'Low'
+       END AS CreditCategory
+FROM customers;
+
+
+-- Importants function in mysql 
+select COALESCE(creditlimit, 0, null) from customers; 
+
+
+select distinct customername from customers;
+select cast(customername as char ) from customers;
+select uuid();
+select version();
+
+-- Csv File handeling 
+-- write csv 
+show variables like "secure_file_priv";
+use pratice;
+show tables;
+select * from student;
+desc student;
+select*
+into outfile 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\student'
+character set utf8mb4
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+from student;
+
+
+ 
+
+
+
+load data infile 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\student.csv'
+into table student
+character set utf8mb4
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+ignore 1 rows
+(id, name, age, gender, phone_no, email, registered_At) ;
+select * from student;
+
+
+
+-- TCL Transaction control langauge 
+
+-- commit
+-- rollback
+-- savepoint
+
+/*
+ACID
+
+ACID in MySQL stands for Atomicity, Consistency, Isolation, and Durability.
+These properties ensure reliable transactions.
+Atomicity guarantees all-or-nothing operations,
+Consistency ensures rules are not violated,
+Isolation separates transactions so they don’t affect each other, and
+Durability ensures committed data is safely stored even after crashes.”
+
+*/
+
+
+-- TCL Comand
+create database account;
+use account;
+Create table account(id int primary key, name varchar(50), ammount decimal(7,2));
+
+INSERT INTO account (id, name, ammount) VALUES
+(101, 'Simran Anand', 15000.50),
+(102, 'Rahul Sharma', 12000.00),
+(103, 'Priya Verma', 18500.75),
+(104, 'Aman Singh', 9500.00),
+(105, 'Neha Gupta', 22000.10);
+
+set autocommit=0;
+
+start transaction;
+update account set ammount = ammount-5000 where id =103;
+update account set ammount = ammount+5000 where id = 106;
+
+use account;
+select * from account;
+
+start transaction;
+
+update account set  ammount=ammount-2000 where id =101 ;
+savepoint sp1;
+update account set  ammount=ammount-2000 where id =101 ;
+rollback to sp1;
+select * from account;
+
+
+
+-- Data Control Langauge 
+create user 'abhishek'@'localhost' identified by '1234';
+grant select on pratice.student to 'abhishek'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'abhishek'@'localhost' WITH GRANT OPTION;
+
+revoke all privileges, grant option from 'abhishek'@'localhost';
+flush privileges;
+
+-- Forcefuly refresh the user
+
+SET @username = 'abhishek';
+
+SELECT CONCAT('KILL ', ID, ';') INTO @cmd
+FROM information_schema.processlist
+WHERE USER = @username
+LIMIT 1;
+
+PREPARE stmt FROM @cmd;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Complted a Mysql Course content
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
